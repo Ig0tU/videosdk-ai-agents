@@ -1,0 +1,581 @@
+#!/bin/bash
+
+cat > production_ui.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Production VideoSDK Collaborative Development Cluster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF8C00 50%, #000000 100%);
+      min-height: 100vh;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 0;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .status-bar {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #666;
+    }
+    .status-indicator.connected {
+      background: #00FF00;
+      box-shadow: 0 0 10px #00FF00;
+    }
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .panel {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      padding: 30px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    .panel h3 {
+      color: #FFD700;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+    .project-input textarea {
+      width: 100%;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      border-radius: 10px;
+      padding: 15px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: vertical;
+    }
+    .project-input textarea::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .btn {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #000000;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 5px;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn.secondary {
+      background: rgba(255, 215, 0, 0.2);
+      color: #FFD700;
+      border: 1px solid #FFD700;
+    }
+    .videosdk-integration {
+      background: rgba(0, 100, 0, 0.1);
+      border: 1px solid rgba(0, 255, 0, 0.3);
+    }
+    .meeting-link {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 215, 0, 0.3);
+      border-top: 3px solid #FFD700;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hidden {
+      display: none;
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #FFD700;
+      padding: 15px 20px;
+      border-radius: 10px;
+      border: 1px solid #FFD700;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+    .notification.show {
+      transform: translateX(0);
+    }
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏭 Production VideoSDK Collaborative Development Cluster</h1>
+      <p>Real-world operable application with AI analysis, VideoSDK integration, and production deployment</p>
+    </div>
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-indicator" id="connectionStatus"></div>
+        <span id="connectionText">Connecting...</span>
+      </div>
+      <div class="status-item">
+        <span>🤖 AI Agents: <strong>8 Ready</strong></span>
+      </div>
+      <div class="status-item">
+        <span>📊 Sessions: <strong id="sessionCount">0</strong></span>
+      </div>
+      <div class="status-item">
+        <span>🎥 VideoSDK: <strong id="videosdkStatus">Ready</strong></span>
+      </div>
+    </div>
+    <div class="main-layout">
+      <div class="left-panel">
+        <div class="panel">
+          <h3>📋 Project Description</h3>
+          <textarea id="projectDescription" placeholder="Describe your real-world project in detail. Include business requirements, technical constraints, target users, and any specific technologies or frameworks you want to use. The AI agents will analyze this and generate a complete development plan with code artifacts.">Build a comprehensive e-commerce platform with real-time inventory management, AI-powered product recommendations, multi-vendor support, advanced analytics dashboard, mobile app integration, and scalable microservices architecture. The platform should handle high traffic, ensure data security, and provide excellent user experience across all devices.</textarea>
+          <div style="margin-top: 15px;">
+            <button class="btn" onclick="startProductionCollaboration()">🚀 Start Production Analysis</button>
+            <button class="btn secondary" onclick="loadSessionHistory()">📚 Load History</button>
+            <button class="btn secondary" onclick="exportCurrentSession()">📊 Export Project</button>
+          </div>
+          <div style="margin-top: 15px;">
+            <label style="color: #FFD700; font-size: 0.9rem;">Session ID:</label>
+            <div id="sessionId" style="color: #FFA500; font-family: monospace; margin-top: 5px;">Not started</div>
+          </div>
+        </div>
+        <div class="panel videosdk-integration" id="videosdkPanel">
+          <h3>🎥 VideoSDK Integration</h3>
+          <p>Real-time collaboration room for team members</p>
+          <div id="meetingInfo" class="hidden">
+            <div><strong>Room ID:</strong> <span id="roomId"></span></div>
+            <div class="meeting-link">
+              <strong>Join Meeting:</strong><br />
+              <a href="#" id="meetingLink" target="_blank" style="color: #00FF00;"></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="panel">
+          <h3>📋 Generated Requirements</h3>
+          <div id="requirementsContainer">
+            <div style="text-align: center; opacity: 0.6; padding: 20px;">
+              No requirements generated yet. Start a production analysis to see AI-generated project requirements.
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>💻 Code Artifacts</h3>
+          <div class="code-artifacts" id="codeArtifactsContainer">
+            <div style="text-align: center; opacity: 0.6; padding: 20px;">
+              No code artifacts generated yet. AI agents will create production-ready code files during analysis.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="loading" id="loadingPanel">
+      <div class="spinner"></div>
+      <h3>🤖 AI Agents Analyzing Project...</h3>
+      <p>
+        Please wait while our production AI team analyzes your project and generates comprehensive requirements and code artifacts.
+      </p>
+    </div>
+  </div>
+  <div class="notification" id="notification">
+    <div id="notificationText"></div>
+  </div>
+  <script>
+    let socket = null;
+    let currentSession = null;
+    let analysisInProgress = false;
+    const agents = [
+      { name: "Alex", role: "System Architect", avatar: "🏗️" },
+      { name: "Dev", role: "Lead Developer", avatar: "💻" },
+      { name: "Luna", role: "UX/UI Designer", avatar: "🎨" },
+      { name: "Quinn", role: "QA Engineer", avatar: "🧪" },
+      { name: "Morgan", role: "Product Manager", avatar: "📊" },
+      { name: "Sage", role: "Security Engineer", avatar: "🔒" },
+      { name: "Phoenix", role: "DevOps Engineer", avatar: "⚡" },
+      { name: "Nova", role: "Tech Lead", avatar: "🚀" }
+    ];
+    document.addEventListener("DOMContentLoaded", function () {
+      initializeSocket();
+      initializeAgentStatus();
+      loadSessionHistory();
+    });
+    function initializeSocket() {
+      socket = io();
+      socket.on("connect", function () {
+        updateConnectionStatus(true);
+        showNotification("Connected to production server", "success");
+      });
+      socket.on("disconnect", function () {
+        updateConnectionStatus(false);
+        showNotification("Disconnected from server", "error");
+      });
+      socket.on("analysis_started", function (data) {
+        showNotification("AI analysis started", "info");
+        updateProgress(10, "AI agents analyzing project...");
+      });
+      socket.on("agent_completed", function (data) {
+        updateAgentStatus(data.agent, "completed");
+        const completedCount = document.querySelectorAll(".agent-status.completed").length;
+        const progress = 10 + (completedCount / agents.length) * 80;
+        updateProgress(progress, `${data.agent} completed analysis`);
+      });
+      socket.on("analysis_completed", function (data) {
+        updateProgress(100, "Analysis completed successfully!");
+        showNotification(`Analysis complete: ${data.requirements_count} requirements, ${data.artifacts_count} code files`, "success");
+        setTimeout(() => {
+          loadSessionData(data.session_id);
+        }, 1000);
+      });
+      socket.on("analysis_error", function (data) {
+        showNotification(`Analysis error: ${data.error}`, "error");
+        analysisInProgress = false;
+        document.getElementById("loadingPanel").style.display = "none";
+      });
+    }
+    function initializeAgentStatus() {
+      const container = document.getElementById("agentStatusGrid");
+      container.innerHTML = "";
+      agents.forEach((agent) => {
+        const card = document.createElement("div");
+        card.className = "agent-status-card";
+        card.innerHTML = `
+                    <div class="agent-avatar">${agent.avatar}</div>
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-status" id="status-${agent.name}">Ready</div>
+                `;
+        container.appendChild(card);
+      });
+    }
+    function updateAgentStatus(agentName, status) {
+      const statusElement = document.getElementById(`status-${agentName}`);
+      if (statusElement) {
+        statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        statusElement.className = `agent-status ${status}`;
+      }
+    }
+    function updateConnectionStatus(connected) {
+      const indicator = document.getElementById("connectionStatus");
+      const text = document.getElementById("connectionText");
+      if (connected) {
+        indicator.classList.add("connected");
+        text.textContent = "Connected";
+      } else {
+        indicator.classList.remove("connected");
+        text.textContent = "Disconnected";
+      }
+    }
+    function updateProgress(percentage, text) {
+      document.getElementById("progressFill").style.width = `${percentage}%`;
+      document.getElementById("progressText").textContent = text;
+    }
+    async function startProductionCollaboration() {
+      const projectDescription = document.getElementById("projectDescription").value.trim();
+      if (!projectDescription) {
+        showNotification("Please enter a project description first!", "error");
+        return;
+      }
+      if (analysisInProgress) {
+        showNotification("Analysis already in progress", "warning");
+        return;
+      }
+      analysisInProgress = true;
+      document.getElementById("loadingPanel").style.display = "block";
+      agents.forEach((agent) => {
+        updateAgentStatus(agent.name, "analyzing");
+      });
+      try {
+        const response = await fetch("/api/production/collaborate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            project_description: projectDescription,
+            user_id: "production_user_" + Date.now(),
+          }),
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to start collaboration");
+        }
+        const sessionData = await response.json();
+        currentSession = sessionData;
+        document.getElementById("sessionId").textContent = sessionData.id;
+        socket.emit("join_session", { session_id: sessionData.id });
+        if (sessionData.videosdk_room_id) {
+          showVideoSDKIntegration(sessionData.videosdk_room_id);
+        }
+        showNotification("Production analysis started successfully!", "success");
+      } catch (error) {
+        console.error("Collaboration error:", error);
+        showNotification(`Error: ${error.message}`, "error");
+        analysisInProgress = false;
+        document.getElementById("loadingPanel").style.display = "none";
+      }
+    }
+    function showVideoSDKIntegration(roomId) {
+      const meetingInfo = document.getElementById("meetingInfo");
+      const roomIdElement = document.getElementById("roomId");
+      const meetingLink = document.getElementById("meetingLink");
+      roomIdElement.textContent = roomId;
+      const meetingUrl = `https://app.videosdk.live/meeting/${roomId}`;
+      meetingLink.href = meetingUrl;
+      meetingLink.textContent = meetingUrl;
+      meetingInfo.classList.remove("hidden");
+      document.getElementById("videosdkStatus").textContent = "Active";
+    }
+    async function loadSessionData(sessionId) {
+      try {
+        const response = await fetch(`/api/production/session/${sessionId}`);
+        if (!response.ok) throw new Error("Failed to load session data");
+        const sessionData = await response.json();
+        displaySessionResults(sessionData);
+      } catch (error) {
+        console.error("Error loading session data:", error);
+        showNotification("Error loading session data", "error");
+      } finally {
+        analysisInProgress = false;
+        document.getElementById("loadingPanel").style.display = "none";
+      }
+    }
+    function displaySessionResults(sessionData) {
+      const requirementsContainer = document.getElementById("requirementsContainer");
+      if (sessionData.requirements && sessionData.requirements.length > 0) {
+        requirementsContainer.innerHTML = '<div class="requirements-grid"></div>';
+        const grid = requirementsContainer.querySelector(".requirements-grid");
+        sessionData.requirements.forEach((req) => {
+          const card = document.createElement("div");
+          card.className = "requirement-card";
+          card.innerHTML = `
+                        <div class="requirement-header">
+                            <div class="requirement-title">${req.title}</div>
+                            <div class="priority-badge priority-${req.priority}">${req.priority.toUpperCase()}</div>
+                        </div>
+                        <div class="requirement-description">${req.description}</div>
+                        <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
+                            <strong>Category:</strong> ${req.category} | 
+                            <strong>Estimated:</strong> ${req.estimated_hours}h |
+                            <strong>Agent:</strong> ${req.assigned_agents.join(", ")}
+                        </div>
+                    `;
+          grid.appendChild(card);
+        });
+      }
+      const artifactsContainer = document.getElementById("codeArtifactsContainer");
+      if (sessionData.artifacts && sessionData.artifacts.length > 0) {
+        artifactsContainer.innerHTML = "";
+        sessionData.artifacts.forEach((artifact) => {
+          const item = document.createElement("div");
+          item.className = "artifact-item";
+          item.innerHTML = `
+                        <div class="artifact-header">
+                            <div class="artifact-filename">${artifact.filename}</div>
+                            <div class="artifact-agent">${artifact.agent_name}</div>
+                        </div>
+                        <div class="artifact-code">
+                            <pre><code class="language-${artifact.language}">${artifact.code}</code></pre>
+                        </div>
+                        ${
+                          artifact.description
+                            ? `<div style="padding: 15px; background: rgba(255,215,0,0.1); font-size: 0.9rem;">${artifact.description}</div>`
+                            : ""
+                        }
+                    `;
+          artifactsContainer.appendChild(item);
+        });
+        Prism.highlightAllUnder(artifactsContainer);
+      }
+    }
+    async function loadSessionHistory() {
+      try {
+        const response = await fetch("/api/production/sessions");
+        if (!response.ok) throw new Error("Failed to load session history");
+        const data = await response.json();
+        const container = document.getElementById("sessionHistory");
+        if (data.sessions && data.sessions.length > 0) {
+          container.innerHTML = "";
+          data.sessions.forEach((session) => {
+            const item = document.createElement("div");
+            item.className = "session-item";
+            item.onclick = () => loadSessionById(session.id);
+            const createdDate = new Date(session.created_at).toLocaleDateString();
+            const description = session.project_description.substring(0, 100) + "...";
+            item.innerHTML = `
+                            <div class="session-title">Session ${session.id.substring(0, 8)}</div>
+                            <div class="session-meta">
+                                ${createdDate} | Status: ${session.status}
+                            </div>
+                            <div style="margin-top: 5px; font-size: 0.9rem; opacity: 0.8;">
+                                ${description}
+                            </div>
+                        `;
+            container.appendChild(item);
+          });
+          document.getElementById("sessionCount").textContent = data.sessions.length;
+        } else {
+          container.innerHTML =
+            '<div style="text-align: center; opacity: 0.6; padding: 20px;">No previous sessions found</div>';
+        }
+      } catch (error) {
+        console.error("Error loading session history:", error);
+      }
+    }
+    async function loadSessionById(sessionId) {
+      try {
+        const response = await fetch(`/api/production/session/${sessionId}`);
+        if (!response.ok) throw new Error("Failed to load session");
+        const sessionData = await response.json();
+        currentSession = sessionData;
+        document.getElementById("sessionId").textContent = sessionData.id;
+        document.getElementById("projectDescription").value = sessionData.project_description;
+        displaySessionResults(sessionData);
+        showNotification("Session loaded successfully", "success");
+      } catch (error) {
+        console.error("Error loading session:", error);
+        showNotification("Error loading session", "error");
+      }
+    }
+    async function exportCurrentSession() {
+      if (!currentSession) {
+        showNotification("No active session to export", "warning");
+        return;
+      }
+      try {
+        const response = await fetch(`/api/production/export/${currentSession.id}`);
+        if (!response.ok) throw new Error("Failed to export session");
+        const exportData = await response.json();
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `production_project_${currentSession.id}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showNotification("Project exported successfully", "success");
+      } catch (error) {
+        console.error("Error exporting session:", error);
+        showNotification("Error exporting project", "error");
+      }
+    }
+    function showNotification(message, type = "info") {
+      const notification = document.getElementById("notification");
+      const notificationText = document.getElementById("notificationText");
+      notificationText.textContent = message;
+      notification.className = `notification show ${type}`;
+      setTimeout(() => {
+        notification.classList.remove("show");
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
