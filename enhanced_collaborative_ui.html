@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoSDK Collaborative AI Development Cluster - Enhanced</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF8C00 50%, #000000 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .control-panel h3 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .project-input textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .project-input textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn.secondary {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+            border: 1px solid #FFD700;
+        }
+
+        /* Video Session Panel */
+        .video-session {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            min-height: 500px;
+        }
+
+        .video-session h3 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .agent-video {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-video.speaking {
+            border-color: #00FF00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .agent-video.sharing-code {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .avatar-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: idle 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar.speaking {
+            animation: speaking 0.5s ease-in-out infinite alternate;
+        }
+
+        .avatar.thinking {
+            animation: thinking 2s ease-in-out infinite;
+        }
+
+        .avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes idle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(2deg); }
+        }
+
+        @keyframes speaking {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); }
+            100% { transform: scale(1.1); box-shadow: 0 0 30px rgba(0, 255, 0, 0.6); }
+        }
+
+        @keyframes thinking {
+            0%, 100% { transform: scale(1) rotate(-1deg); }
+            25% { transform: scale(1.03) rotate(1deg); }
+            50% { transform: scale(1.06) rotate(-0.5deg); }
+            75% { transform: scale(1.03) rotate(0.5deg); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .agent-name {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+
+        .agent-status {
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .code-sharing-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .code-sharing-indicator.active {
+            opacity: 1;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Code Sharing Panel */
+        .code-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .code-panel h4 {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .code-share-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #FFD700;
+            overflow: hidden;
+        }
+
+        .code-share-header {
+            padding: 10px 15px;
+            background: rgba(255, 215, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-share-agent {
+            font-weight: 600;
+            color: #FFD700;
+        }
+
+        .code-share-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .code-content {
+            padding: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 15px;
+            background: #1a1a1a;
+            overflow-x: auto;
+        }
+
+        /* Agent Control Panel */
+        .agent-controls {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .agent-controls h4 {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .agent-control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .agent-control-name {
+            font-weight: 500;
+            color: #FFD700;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .control-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn.mute {
+            background: #FF4444;
+            color: white;
+        }
+
+        .control-btn.code {
+            background: #FFD700;
+            color: #000;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Meeting Log */
+        .meeting-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .log-entry {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .log-entry.code-share {
+            border-left: 3px solid #00FF00;
+        }
+
+        .log-entry .timestamp {
+            color: #FFA500;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .log-entry .speaker {
+            color: #FFD700;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .log-entry .content {
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .video-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 VideoSDK Collaborative AI Development Cluster</h1>
+            <p>Enhanced with 2D Animated Avatars and Real-time Code Sharing</p>
+        </div>
+
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="control-panel">
+                    <h3>📋 Project Description</h3>
+                    <textarea id="projectDescription" placeholder="Describe your project idea, application concept, or development challenge. The AI agents will collaborate to provide comprehensive analysis, recommendations, and implementation strategies...">A next-generation collaborative IDE with real-time code sharing, AI-powered code suggestions, integrated video calls, and advanced project management features for distributed development teams.</textarea>
+                    <div style="margin-top: 15px;">
+                        <button class="btn" onclick="startEnhancedCollaboration()">🚀 Start Enhanced Session</button>
+                        <button class="btn secondary" onclick="clearSession()">🔄 Clear Session</button>
+                        <button class="btn secondary" onclick="exportResults()">📊 Export Results</button>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label style="color: #FFD700; font-size: 0.9rem;">Meeting ID:</label>
+                        <div id="meetingId" style="color: #FFA500; font-family: monospace; margin-top: 5px;">Not started</div>
+                    </div>
+                </div>
+
+                <div class="video-session" id="videoSession">
+                    <h3>🎥 Live Video Collaboration</h3>
+                    <div class="video-grid" id="videoGrid">
+                        <!-- Agent videos will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="meeting-log" id="meetingLog">
+                        <div class="log-entry">
+                            <div class="timestamp">Ready to start enhanced collaboration...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="agent-controls">
+                    <h4>🎮 Agent Controls</h4>
+                    <div id="agentControlsList">
+                        <!-- Agent controls will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="code-panel">
+                    <h4>💻 Shared Code</h4>
+                    <div id="sharedCodeContainer">
+                        <div style="text-align: center; opacity: 0.6; padding: 20px;">
+                            No code shared yet. Agents will share code snippets during collaboration.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const agents = [
+            { name: "Alex", role: "System Architect", avatar: "🏗️", color: "#FF6B6B" },
+            { name: "Dev", role: "Lead Developer", avatar: "💻", color: "#4ECDC4" },
+            { name: "Luna", role: "UX/UI Designer", avatar: "🎨", color: "#45B7D1" },
+            { name: "Quinn", role: "Quality Assurance", avatar: "🧪", color: "#96CEB4" },
+            { name: "Morgan", role: "Product Manager", avatar: "📊", color: "#FFEAA7" },
+            { name: "Sage", role: "Security Specialist", avatar: "🔒", color: "#DDA0DD" },
+            { name: "Phoenix", role: "Performance Analyst", avatar: "⚡", color: "#98D8C8" },
+            { name: "Nova", role: "Innovation Lead", avatar: "🚀", color: "#F7DC6F" }
+        ];
+
+        let currentSession = null;
+        let collaborationActive = false;
+        let speakingAgent = null;
+        let codeShareCounter = 0;
+
+        function initializeVideoSession() {
+            const videoGrid = document.getElementById('videoGrid');
+            const agentControlsList = document.getElementById('agentControlsList');
+            
+            videoGrid.innerHTML = '';
+            agentControlsList.innerHTML = '';
+
+            agents.forEach(agent => {
+                // Create video element
+                const agentVideo = document.createElement('div');
+                agentVideo.className = 'agent-video';
+                agentVideo.id = `video-${agent.name}`;
+                agentVideo.innerHTML = `
+                    <div class="avatar-container">
+                        <div class="avatar" id="avatar-${agent.name}">
+                            ${agent.avatar}
+                        </div>
+                        <div class="code-sharing-indicator" id="code-indicator-${agent.name}">💻</div>
+                    </div>
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-status" id="status-${agent.name}">Standby</div>
+                `;
+                videoGrid.appendChild(agentVideo);
+
+                // Create control element
+                const agentControl = document.createElement('div');
+                agentControl.className = 'agent-control-item';
+                agentControl.innerHTML = `
+                    <div class="agent-control-name">${agent.name}</div>
+                    <div class="control-buttons">
+                        <button class="control-btn mute" onclick="toggleAgentMute('${agent.name}')">🔇</button>
+                        <button class="control-btn code" onclick="requestCodeShare('${agent.name}')">💻</button>
+                    </div>
+                `;
+                agentControlsList.appendChild(agentControl);
+            });
+        }
+
+        function updateAgentStatus(agentName, status, statusText) {
+            const avatar = document.getElementById(`avatar-${agentName}`);
+            const statusElement = document.getElementById(`status-${agentName}`);
+            const videoElement = document.getElementById(`video-${agentName}`);
+            
+            if (avatar && statusElement && videoElement) {
+                // Update avatar animation
+                avatar.className = `avatar ${status}`;
+                statusElement.textContent = statusText;
+                
+                // Update video border
+                videoElement.className = `agent-video ${status === 'speaking' ? 'speaking' : ''}`;
+            }
+        }
+
+        function setAgentSpeaking(agentName, speaking = true) {
+            if (speakingAgent && speakingAgent !== agentName) {
+                updateAgentStatus(speakingAgent, 'idle', 'Listening');
+            }
+            
+            if (speaking) {
+                speakingAgent = agentName;
+                updateAgentStatus(agentName, 'speaking', 'Speaking');
+            } else {
+                speakingAgent = null;
+                updateAgentStatus(agentName, 'idle', 'Standby');
+            }
+        }
+
+        function showCodeSharing(agentName, code, language = 'javascript') {
+            const indicator = document.getElementById(`code-indicator-${agentName}`);
+            const videoElement = document.getElementById(`video-${agentName}`);
+            
+            // Show code sharing indicator
+            indicator.classList.add('active');
+            videoElement.classList.add('sharing-code');
+            
+            // Add to shared code panel
+            addSharedCode(agentName, code, language);
+            
+            // Hide indicator after 3 seconds
+            setTimeout(() => {
+                indicator.classList.remove('active');
+                videoElement.classList.remove('sharing-code');
+            }, 3000);
+        }
+
+        function addSharedCode(agentName, code, language) {
+            const container = document.getElementById('sharedCodeContainer');
+            
+            // Clear placeholder if it exists
+            if (container.children.length === 1 && container.children[0].style.textAlign === 'center') {
+                container.innerHTML = '';
+            }
+            
+            const codeItem = document.createElement('div');
+            codeItem.className = 'code-share-item';
+            codeItem.innerHTML = `
+                <div class="code-share-header">
+                    <div class="code-share-agent">${agentName}</div>
+                    <div class="code-share-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+                <div class="code-content">
+                    <pre><code class="language-${language}">${code}</code></pre>
+                </div>
+            `;
+            
+            container.insertBefore(codeItem, container.firstChild);
+            
+            // Highlight syntax
+            Prism.highlightAllUnder(codeItem);
+            
+            // Add to meeting log
+            addLogEntry(agentName, 'Code Share', `Shared ${language} code snippet`, 'code-share');
+        }
+
+        function addLogEntry(speaker, type, content, className = '') {
+            const meetingLog = document.getElementById('meetingLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${className}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.innerHTML = `
+                <div class="timestamp">${timestamp}</div>
+                <div class="speaker">${speaker} (${type})</div>
+                <div class="content">${content}</div>
+            `;
+            
+            meetingLog.appendChild(logEntry);
+            meetingLog.scrollTop = meetingLog.scrollHeight;
+        }
+
+        async function startEnhancedCollaboration() {
+            const projectDescription = document.getElementById('projectDescription').value.trim();
+            
+            if (!projectDescription) {
+                alert('Please enter a project description first!');
+                return;
+            }
+
+            // Show loading state
+            const startButton = document.querySelector('button[onclick="startEnhancedCollaboration()"]');
+            const originalText = startButton.textContent;
+            startButton.textContent = '🤖 AI Analyzing...';
+            startButton.disabled = true;
+
+            try {
+                // Call the intelligent collaboration API
+                const response = await fetch('/api/intelligent/collaborate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        project_description: projectDescription
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to start collaboration');
+                }
+
+                const sessionData = await response.json();
+                
+                // Update UI with real session data
+                document.getElementById('meetingId').textContent = sessionData.session_id;
+                currentSession = sessionData;
+                collaborationActive = true;
+
+                // Display real AI collaboration results
+                await displayIntelligentCollaboration(sessionData);
+
+            } catch (error) {
+                console.error('Collaboration error:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                // Reset button
+                startButton.textContent = originalText;
+                startButton.disabled = false;
+            }
+        }
+
+        async function displayIntelligentCollaboration(sessionData) {
+            addLogEntry('System', 'AI Session', '🧠 Intelligent AI collaboration started');
+            
+            // Display each agent's AI analysis
+            for (const agentData of sessionData.agents || []) {
+                const agent = agents.find(a => a.name === agentData.name);
+                if (!agent) continue;
+
+                // Update agent status
+                updateAgentStatus(agent.name, 'thinking', 'AI Analyzing...');
+                
+                // Add analysis to log
+                if (agentData.analysis && agentData.analysis.ai_analysis) {
+                    const analysis = agentData.analysis.ai_analysis;
+                    
+                    // Show analysis
+                    addLogEntry(
+                        agent.name, 
+                        'AI Analysis', 
+                        analysis.analysis || 'Analysis completed'
+                    );
+                    
+                    // Show recommendations
+                    if (analysis.recommendations && analysis.recommendations.length > 0) {
+                        addLogEntry(
+                            agent.name,
+                            'Recommendations',
+                            '• ' + analysis.recommendations.slice(0, 3).join('\n• ')
+                        );
+                    }
+                    
+                    // Share code if available
+                    if (analysis.code_example && analysis.code_example.code) {
+                        showCodeSharing(
+                            agent.name,
+                            analysis.code_example.code,
+                            analysis.code_example.language || 'javascript'
+                        );
+                    }
+                }
+                
+                // Update status to completed
+                updateAgentStatus(agent.name, 'idle', 'Analysis Complete');
+                
+                // Small delay for visual effect
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            // Display collaboration responses
+            if (sessionData.collaboration_log) {
+                addLogEntry('System', 'Collaboration', '🤝 AI agents collaborating...');
+                
+                for (const collab of sessionData.collaboration_log) {
+                    addLogEntry(
+                        collab.agent1,
+                        `Collaborating with ${collab.agent2}`,
+                        collab.response
+                    );
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+            }
+
+            addLogEntry('System', 'Complete', '✅ Intelligent AI collaboration completed!');
+        }
+
+        async function simulateEnhancedCollaboration(projectDescription) {
+            // Phase 1: Agents join and analyze
+            addLogEntry('System', 'Phase 1', '👥 Agents joining video session...');
+            
+            for (let i = 0; i < agents.length; i++) {
+                const agent = agents[i];
+                await new Promise(resolve => setTimeout(resolve, 500));
+                updateAgentStatus(agent.name, 'thinking', 'Analyzing...');
+                addLogEntry(agent.name, 'Join', `Joined video session and analyzing project`);
+            }
+
+            // Phase 2: Collaborative discussions with code sharing
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            addLogEntry('System', 'Phase 2', '💬 Starting collaborative discussions...');
+
+            const collaborationScenarios = [
+                {
+                    agent: 'Alex',
+                    speech: 'Presenting system architecture recommendations',
+                    code: `// Microservices Architecture Pattern
+class ServiceRegistry {
+    constructor() {
+        this.services = new Map();
+    }
+    
+    register(serviceName, instance) {
+        this.services.set(serviceName, instance);
+        console.log(\`Service \${serviceName} registered\`);
+    }
+    
+    discover(serviceName) {
+        return this.services.get(serviceName);
+    }
+}
+
+const registry = new ServiceRegistry();`,
+                    language: 'javascript'
+                },
+                {
+                    agent: 'Dev',
+                    speech: 'Sharing CI/CD pipeline configuration',
+                    code: `# CI/CD Pipeline Configuration
+name: Collaborative IDE Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - run: npm ci
+    - run: npm test
+    - run: npm run build`,
+                    language: 'yaml'
+                },
+                {
+                    agent: 'Luna',
+                    speech: 'Demonstrating responsive design components',
+                    code: `/* Responsive Design System */
+.collaborative-workspace {
+    display: grid;
+    grid-template-columns: 
+        minmax(250px, 1fr) 
+        minmax(600px, 3fr) 
+        minmax(300px, 1fr);
+    gap: 1rem;
+    height: 100vh;
+}
+
+@media (max-width: 1024px) {
+    .collaborative-workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+}
+
+.code-editor {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+}`,
+                    language: 'css'
+                },
+                {
+                    agent: 'Sage',
+                    speech: 'Implementing security authentication',
+                    code: `// JWT Authentication Middleware
+const jwt = require('jsonwebtoken');
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+        return res.sendStatus(401);
+    }
+    
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
+module.exports = { authenticateToken };`,
+                    language: 'javascript'
+                },
+                {
+                    agent: 'Quinn',
+                    speech: 'Setting up automated testing framework',
+                    code: `// Automated Testing Suite
+describe('Collaborative IDE Features', () => {
+    let app;
+    
+    beforeEach(async () => {
+        app = await createTestApp();
+    });
+    
+    test('should allow real-time code sharing', async () => {
+        const user1 = await app.createUser('developer1');
+        const user2 = await app.createUser('developer2');
+        
+        const codeShare = await user1.shareCode({
+            language: 'javascript',
+            content: 'console.log("Hello, World!");'
+        });
+        
+        const receivedCode = await user2.receiveSharedCode();
+        expect(receivedCode.content).toBe(codeShare.content);
+    });
+});`,
+                    language: 'javascript'
+                }
+            ];
+
+            for (const scenario of collaborationScenarios) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Agent starts speaking
+                setAgentSpeaking(scenario.agent, true);
+                addLogEntry(scenario.agent, 'Speaking', scenario.speech);
+                
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Agent shares code
+                showCodeSharing(scenario.agent, scenario.code, scenario.language);
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Agent stops speaking
+                setAgentSpeaking(scenario.agent, false);
+            }
+
+            // Phase 3: Final consensus
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            addLogEntry('System', 'Phase 3', '🎯 Reaching consensus and finalizing recommendations');
+            
+            // All agents thinking
+            agents.forEach(agent => {
+                updateAgentStatus(agent.name, 'thinking', 'Finalizing...');
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Session complete
+            agents.forEach(agent => {
+                updateAgentStatus(agent.name, 'idle', 'Completed');
+            });
+            
+            addLogEntry('System', 'Complete', '✅ Enhanced collaboration session completed successfully!');
+        }
+
+        function toggleAgentMute(agentName) {
+            const status = document.getElementById(`status-${agentName}`);
+            const currentStatus = status.textContent;
+            
+            if (currentStatus.includes('Muted')) {
+                updateAgentStatus(agentName, 'idle', 'Standby');
+                addLogEntry('System', 'Control', `${agentName} unmuted`);
+            } else {
+                updateAgentStatus(agentName, 'idle', 'Muted');
+                addLogEntry('System', 'Control', `${agentName} muted`);
+            }
+        }
+
+        function requestCodeShare(agentName) {
+            if (!collaborationActive) {
+                alert('Start a collaboration session first!');
+                return;
+            }
+
+            const sampleCodes = {
+                'Alex': {
+                    code: `// System Architecture Pattern
+class MicroserviceOrchestrator {
+    constructor() {
+        this.services = [];
+        this.loadBalancer = new LoadBalancer();
+    }
+    
+    addService(service) {
+        this.services.push(service);
+        this.loadBalancer.register(service);
+    }
+    
+    async processRequest(request) {
+        const service = this.loadBalancer.getNextService();
+        return await service.handle(request);
+    }
+}`,
+                    language: 'javascript'
+                },
+                'Dev': {
+                    code: `// Development Best Practices
+const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+
+// Security middleware
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// API routes
+app.use('/api', require('./routes/api'));
+
+module.exports = app;`,
+                    language: 'javascript'
+                },
+                'Luna': {
+                    code: `/* UX Design System */
+:root {
+    --primary-color: #FFD700;
+    --secondary-color: #FFA500;
+    --accent-color: #FF8C00;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --spacing-unit: 8px;
+}
+
+.design-system {
+    --spacing-xs: calc(var(--spacing-unit) * 0.5);
+    --spacing-sm: var(--spacing-unit);
+    --spacing-md: calc(var(--spacing-unit) * 2);
+    --spacing-lg: calc(var(--spacing-unit) * 3);
+    --spacing-xl: calc(var(--spacing-unit) * 4);
+}
+
+.component {
+    padding: var(--spacing-md);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}`,
+                    language: 'css'
+                },
+                'Quinn': {
+                    code: `// Testing Framework
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { CollaborativeIDE } from '../components/CollaborativeIDE';
+
+describe('CollaborativeIDE Component', () => {
+    test('should render code editor', () => {
+        render(<CollaborativeIDE />);
+        const editor = screen.getByRole('textbox');
+        expect(editor).toBeInTheDocument();
+    });
+    
+    test('should handle real-time collaboration', async () => {
+        const { container } = render(<CollaborativeIDE />);
+        const editor = container.querySelector('.code-editor');
+        
+        fireEvent.change(editor, { 
+            target: { value: 'console.log("test");' } 
+        });
+        
+        await waitFor(() => {
+            expect(editor.value).toBe('console.log("test");');
+        });
+    });
+});`,
+                    language: 'javascript'
+                },
+                'Morgan': {
+                    code: `// Product Analytics
+class ProductAnalytics {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.events = [];
+    }
+    
+    track(eventName, properties = {}) {
+        const event = {
+            name: eventName,
+            properties: {
+                ...properties,
+                timestamp: Date.now(),
+                sessionId: this.getSessionId()
+            }
+        };
+        
+        this.events.push(event);
+        this.sendToAnalytics(event);
+    }
+    
+    trackUserAction(action, context) {
+        this.track('user_action', {
+            action,
+            context,
+            userId: this.getCurrentUserId()
+        });
+    }
+}`,
+                    language: 'javascript'
+                },
+                'Sage': {
+                    code: `// Security Implementation
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+
+class SecurityManager {
+    static async hashPassword(password) {
+        const saltRounds = 12;
+        return await bcrypt.hash(password, saltRounds);
+    }
+    
+    static async verifyPassword(password, hash) {
+        return await bcrypt.compare(password, hash);
+    }
+    
+    static generateSecureToken() {
+        return crypto.randomBytes(32).toString('hex');
+    }
+    
+    static encryptData(data, key) {
+        const cipher = crypto.createCipher('aes-256-cbc', key);
+        let encrypted = cipher.update(data, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        return encrypted;
+    }
+}`,
+                    language: 'javascript'
+                },
+                'Phoenix': {
+                    code: `// Performance Monitoring
+class PerformanceMonitor {
+    constructor() {
+        this.metrics = new Map();
+        this.observers = [];
+    }
+    
+    startTiming(label) {
+        const start = performance.now();
+        return {
+            end: () => {
+                const duration = performance.now() - start;
+                this.recordMetric(label, duration);
+                return duration;
+            }
+        };
+    }
+    
+    recordMetric(name, value) {
+        if (!this.metrics.has(name)) {
+            this.metrics.set(name, []);
+        }
+        this.metrics.get(name).push({
+            value,
+            timestamp: Date.now()
+        });
+    }
+    
+    getAverageMetric(name) {
+        const values = this.metrics.get(name) || [];
+        return values.reduce((sum, m) => sum + m.value, 0) / values.length;
+    }
+}`,
+                    language: 'javascript'
+                },
+                'Nova': {
+                    code: `// AI Integration
+class AICodeAssistant {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.model = 'gpt-4';
+    }
+    
+    async generateCode(prompt, language = 'javascript') {
+        const response = await fetch('/api/ai/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': \`Bearer \${this.apiKey}\`
+            },
+            body: JSON.stringify({
+                prompt,
+                language,
+                model: this.model
+            })
+        });
+        
+        return await response.json();
+    }
+    
+    async reviewCode(code) {
+        const response = await this.generateCode(
+            \`Review this code and suggest improvements: \${code}\`
+        );
+        return response.suggestions;
+    }
+}`,
+                    language: 'javascript'
+                }
+            };
+
+            const agentCode = sampleCodes[agentName];
+            if (agentCode) {
+                showCodeSharing(agentName, agentCode.code, agentCode.language);
+                addLogEntry(agentName, 'Manual Code Share', 'Shared code snippet on request');
+            }
+        }
+
+        function clearSession() {
+            currentSession = null;
+            collaborationActive = false;
+            speakingAgent = null;
+            document.getElementById('meetingId').textContent = 'Not started';
+            document.getElementById('meetingLog').innerHTML = '<div class="log-entry"><div class="timestamp">Ready to start enhanced collaboration...</div></div>';
+            document.getElementById('sharedCodeContainer').innerHTML = '<div style="text-align: center; opacity: 0.6; padding: 20px;">No code shared yet. Agents will share code snippets during collaboration.</div>';
+            
+            agents.forEach(agent => {
+                updateAgentStatus(agent.name, 'idle', 'Standby');
+            });
+        }
+
+        function exportResults() {
+            if (!currentSession) {
+                alert('No active session to export!');
+                return;
+            }
+
+            const results = {
+                session: currentSession,
+                timestamp: new Date().toISOString(),
+                agents: agents,
+                sharedCode: Array.from(document.querySelectorAll('.code-share-item')).map(item => ({
+                    agent: item.querySelector('.code-share-agent').textContent,
+                    time: item.querySelector('.code-share-time').textContent,
+                    code: item.querySelector('code').textContent
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `enhanced_collaboration_${currentSession.meetingId}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVideoSession();
+        });
+    </script>
+</body>
+</html>
