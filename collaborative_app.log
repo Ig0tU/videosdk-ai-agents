@@ -1,0 +1,16 @@
+2025-07-28 18:56:21,356 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.17.0.2:8000
+2025-07-28 18:56:21,357 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-28 18:56:25,687 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2025 18:56:25] "GET / HTTP/1.1" 200 -
+2025-07-28 19:28:49,608 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2025 19:28:49] "[36mGET / HTTP/1.1[0m" 304 -
+2025-07-28 19:30:10,322 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.17.0.2:8000
+2025-07-28 19:30:10,322 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-28 19:31:55,017 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2025 19:31:55] "GET / HTTP/1.1" 200 -
+2025-07-28 19:36:22,962 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2025 19:36:22] "[36mGET / HTTP/1.1[0m" 304 -
+2025-07-28 19:36:30,007 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2025 19:36:30] "[36mGET / HTTP/1.1[0m" 304 -
+2025-07-28 19:58:45,477 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2025 19:58:45] "[36mGET / HTTP/1.1[0m" 304 -
